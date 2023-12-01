@@ -59,27 +59,38 @@ fn part2(input: &str) -> Result<u32, Box<dyn Error>> {
     Ok(numbers.into_iter().sum())
 }
 
-fn parse_line_part2(line: &str) -> Result<u32, Box<dyn Error>> {
+fn find_first_in_line(line: &str, from: usize) -> Option<(usize, String)> {
     lazy_static! {
         static ref DIGIT: Regex =
             Regex::new(r"(1|2|3|4|5|6|7|8|9|0|one|two|three|four|five|six|seven|eight|nine)")
                 .unwrap();
     }
 
-    let mut matches = DIGIT.captures_iter(line);
+    let captures = DIGIT.captures_at(line, from)?;
 
-    let first_match = &matches.next().expect("at least one match please")[0];
-    let last_match: String;
-    if let Some(last) = matches.last() {
-        let last = &last[0].to_owned();
-        last_match = last.clone();
-    } else {
-        last_match = first_match.to_owned();
+    if captures.len() == 0 {
+        return None;
     }
-    let last_match = &last_match;
 
-    let first = match_to_num(first_match)?;
-    let last = match_to_num(last_match)?;
+    let first = captures.get(1)?;
+
+    Some((first.start(), first.as_str().to_owned()))
+}
+
+fn parse_line_part2(line: &str) -> Result<u32, Box<dyn Error>> {
+    let (first_index, first_string) = find_first_in_line(line, 0)
+        .ok_or_else(|| format!("Unable to match any digits in '{}'", line))?;
+
+    let mut start_index = first_index + 1;
+    let mut last_string = first_string.clone();
+
+    while let Some((i, s)) = find_first_in_line(&line, start_index) {
+        start_index = i + 1;
+        last_string = s;
+    }
+
+    let first = match_to_num(&first_string)?;
+    let last = match_to_num(&last_string)?;
 
     let concatenated = format!("{}{}", first, last);
     let parsed = concatenated.parse::<u32>()?;
@@ -144,12 +155,21 @@ fn test_part2_line() {
     let input = "treb7uchet";
     let result = part2(input).unwrap();
     assert_eq!(result, 77);
+}
+#[test]
+fn test_part2_line2() {
     let input = "eight9fhstbssrplmdlncmmqqnklb39ninejz";
     let result = part2(input).unwrap();
     assert_eq!(result, 89);
+}
+#[test]
+fn test_part2_line3() {
     let input = "kdkjqdkvgs2";
     let result = part2(input).unwrap();
     assert_eq!(result, 22);
+}
+#[test]
+fn test_part2_line4() {
     let result = part2("eightwo").unwrap();
     assert_eq!(result, 82);
 }
