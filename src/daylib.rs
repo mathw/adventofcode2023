@@ -1,6 +1,7 @@
 use std::{error::Error, fmt::Display};
 
-pub(crate) type DayResult = Result<Parts, Box<dyn Error>>;
+pub(crate) type Result<T> = std::result::Result<T, Box<dyn Error>>;
+pub(crate) type DayResult = Result<Parts>;
 
 pub(crate) struct Parts {
     pub part1: Box<dyn Display>,
