@@ -4,11 +4,28 @@ use regex::{Captures, Regex};
 
 pub fn day2(input: &str) -> DayResult {
     let part1 = part1(input)?;
+    let part2 = part2(input)?;
 
     Ok(Parts {
         part1: Box::new(format!("Sum of possible game IDs is {}", part1)),
-        part2: Box::new(format!("not implemented")),
+        part2: Box::new(format!("Sum of powers of minimal sets is {}", part2)),
     })
+}
+
+fn part2(input: &str) -> Result<u32> {
+    Ok(parse_input(input)?
+        .iter()
+        .map(fewest_cubes)
+        .map(|b| b.power())
+        .sum())
+}
+
+fn fewest_cubes(game: &Game) -> Bag {
+    Bag {
+        red: game.bags.iter().map(|g| g.red).max().unwrap_or(0),
+        blue: game.bags.iter().map(|g| g.blue).max().unwrap_or(0),
+        green: game.bags.iter().map(|g| g.green).max().unwrap_or(0),
+    }
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -25,6 +42,10 @@ impl Bag {
 
     fn possible_from(&self, other: &Bag) -> bool {
         self.red <= other.red && self.green <= other.green && self.blue <= other.blue
+    }
+
+    fn power(&self) -> u32 {
+        self.red * self.green * self.blue
     }
 }
 
@@ -117,4 +138,9 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 #[test]
 fn test_part1() {
     assert_eq!(part1(TEST_INPUT).unwrap(), 8);
+}
+
+#[test]
+fn test_part2() {
+    assert_eq!(part2(TEST_INPUT).unwrap(), 2286);
 }
