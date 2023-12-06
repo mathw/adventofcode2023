@@ -142,3 +142,48 @@ fn part1(input: &str) -> Result<u32> {
 fn test_part1() {
     assert_eq!(part1(TEST_INPUT).unwrap(), 4361);
 }
+
+#[allow(unused)]
+fn get_gear_ratios(input: &str) -> Result<Vec<u32>> {
+    fn might_be_gear(c: char) -> bool {
+        c == '*'
+    }
+
+    let mut extended_lines = input
+        .lines()
+        .map(|line| format!(".{}.", line))
+        .collect::<Vec<String>>();
+
+    let line_length = extended_lines[0].len();
+    extended_lines.insert(0, ".".repeat(line_length));
+    extended_lines.push(".".repeat(line_length));
+
+    let mut gear_ratios = Vec::new();
+
+    for (line_number, line) in extended_lines.iter().enumerate() {
+        for (char_number, c) in line.chars().enumerate() {
+            if c == '*' {
+                // let's look for two connected numbers
+                let left_num = line
+                    .chars()
+                    .rev()
+                    .skip(line.len() - char_number)
+                    .take_while(char::is_ascii_digit)
+                    .collect::<String>()
+                    .parse::<u32>();
+                let right_num = line
+                    .chars()
+                    .skip(char_number + 1)
+                    .take_while(char::is_ascii_digit)
+                    .collect::<String>()
+                    .parse::<u32>();
+            }
+        }
+    }
+
+    Ok(gear_ratios)
+}
+
+fn find_number_touching(line: &str, touch_index: usize) -> Result<u32> {
+    todo!();
+}
